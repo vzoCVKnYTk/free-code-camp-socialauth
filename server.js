@@ -6,6 +6,7 @@ const fccTesting  = require('./freeCodeCamp/fcctesting.js');
 const session     = require('express-session');
 const mongo       = require('mongodb').MongoClient;
 const passport    = require('passport');
+const GitHubStrategy = require('passport-github').Strategy;
 
 const app = express();
 
@@ -17,10 +18,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'pug')
 
-mongo.connect(process.env.DATABASE, (err, db) => {
+mongo.connect(process.env.DATABASE, (err, client) => {
     if(err) {
-        console.log('Database error: ' + err);
+        console.log(process.env.DATABASE + 'Database error: ' + err);
     } else {
+        const db = client.db()
         console.log('Successful database connection');
       
         app.use(session({
@@ -43,19 +45,28 @@ mongo.connect(process.env.DATABASE, (err, db) => {
         });
 
         passport.deserializeUser((id, done) => {
-            db.collection('socialusers').findOne(
+            db.collection('users').findOne(
                 {id: id},
                 (err, doc) => {
                     done(null, doc);
                 }
             );
         });
-
       
         /*
         *  ADD YOUR CODE BELOW
-        */
-      
+        // */
+        // passport.use(new GitHubStrategy({
+        //     clientID: process.env.GITHUB_CLIENT_ID,
+        //     clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        //     callbackURL: "https://vzocvknytk-free-code-camp-advancednode-2.glitch.me/auth/github/callback"
+        //   },
+        //   function(accessToken, refreshToken, profile, done) {
+        //     // User.findOrCreate({ githubId: profile.id }, function (err, user) {
+        //       return done(null, profile);
+        //     // });
+        //   }
+        // ));
       
       
       
